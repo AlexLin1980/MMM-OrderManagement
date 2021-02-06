@@ -12,6 +12,8 @@ Schnittstellen sind ein Thermal-Printer (80mm) für den Druck der Bestellung.
 In dem Projekt wird ein 2,5" Touch-Display benutzt, kann aber auch für Desktop mit Maus-Bedienung
 genutzt werden.
 
+![alt Überblick](https://github.com/AlexLin1980/MMM-OrderManagement/master/img/software.png)
+
 ## Voraussetzungen
 Die Anwendung erfordert MagicMirror v2.13.0.<br>
 Der Quellcode basiert auf NodeJS v10.23.0.<br>
