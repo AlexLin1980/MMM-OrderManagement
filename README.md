@@ -13,9 +13,19 @@ In dem Projekt wird ein 2,5" Touch-Display benutzt, kann aber auch für Desktop 
 genutzt werden.
 
 ## Voraussetzungen
-Die Anwendung erfordert MagicMirror v2.13.0.
+Die Anwendung erfordert MagicMirror v2.13.0.<br>
+Der Quellcode basiert auf NodeJS v10.23.0.<br>
+Für die genutzten Bibliotheken wird Node Package Mangager '''npm''' v6.14.8 verwendet.<br>
+Für die Einrichtung von Druckern (hier Thermal-Bondrucker) ist die Installation und Einrichtung
+von ```CUPS``` erforderlich (s. https://www.cups.org/).
+
+
 Weiteres:
-    - Für Autostart und automatische Updates via '''git pull''' wird  '''pm2''' benötigt.
+
+Für Autostart und automatische Updates via 
+```git pull```
+wird das Tool 
+```pm2``` (s. https://www.npmjs.com/package/pm2) benötigt.
      
 
 ## Installation LCD (Touchdisplay 2,4"):
@@ -33,6 +43,14 @@ sudo ./LCD24-show
 #### WIKI zu dem Treiber:
 CN: http://www.lcdwiki.com/zh/2.4inch_RPi_Display  <br>
 EN: http://www.lcdwiki.com/2.4inch_RPi_Display
+
+## Installation Drucker
+
+Die Anwendung druckt PDF-basierte Quittungen / Bons auf den Drucker, der mit dem Namen 
+```pos80``` eingerichtet ist. 
+Dafür ist der Drucker mit den mitgelieferten Linux-Bibliotheken zu installieren
+und in CUPS einzurichten.
+
 
 ## Installation des Moduls
 Im lokalen MagicMirror-Verzeichnis folgende Befehle ausführen:
