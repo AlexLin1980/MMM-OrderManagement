@@ -64,12 +64,12 @@ npm install
 ```
 
 ## Update für dieses Modul
-Im lokalen MagicMirror-Verzeichnis folgende Befehle ausführen
+Im lokalen MagicMirror-Verzeichnis folgende Befehle ausführen:
 ```
 git pull
 npm install
 ```
-## Using the module
+## Verwendung dieses Moduls
 
 Um diese Modul in der MagicMirror² - Umgebung zu nutzen und einzustellen, editiere die `config/config.js` file:
 ```js
