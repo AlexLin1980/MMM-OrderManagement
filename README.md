@@ -12,7 +12,29 @@ Schnittstellen sind ein Thermal-Printer (80mm) für den Druck der Bestellung.
 In dem Projekt wird ein 2,5" Touch-Display benutzt, kann aber auch für Desktop mit Maus-Bedienung
 genutzt werden.
 
-## Installation
+## Voraussetzungen
+Die Anwendung erfordert MagicMirror v2.13.0.
+Weiteres:
+    - Für Autostart und automatische Updates via '''git pull''' wird  '''pm2''' benötigt.
+     
+
+## Installation LCD (Touchdisplay 2,4"):
+
+Kommandozeile öffnen und folgende Befehle absetzen:
+
+```sudo rm -rf LCD-show```<br>
+```git clone https://github.com/goodtft/LCD-show.git```<br>
+```chmod -R 755 LCD-show```<br>
+```cd LCD-show/```<br>
+
+#### Beispiel:  2.4” RPi Display (MPI2401):
+#### Treiber installieren:
+sudo ./LCD24-show
+#### WIKI zu dem Treiber:
+CN: http://www.lcdwiki.com/zh/2.4inch_RPi_Display  <br>
+EN: http://www.lcdwiki.com/2.4inch_RPi_Display
+
+## Installation des Moduls
 Im lokalen MagicMirror-Verzeichnis folgende Befehle ausführen:
 
 ```
@@ -21,7 +43,7 @@ cd MMM-OrderManagement
 npm install
 ```
 
-## Updates
+## Update für dieses Modul
 Im lokalen MagicMirror-Verzeichnis folgende Befehle ausführen
 ```
 git pull
