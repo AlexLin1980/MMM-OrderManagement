@@ -1,8 +1,19 @@
 # MMM-OrderManagement
 
-This is a module for the [MagicMirror²](https://github.com/MichMich/MagicMirror/).
+Dies Anwendung ist technisch ein Modul, welches Framework und Ablaufumgebung
+von [MagicMirror²](https://github.com/MichMich/MagicMirror/) nutzt.
 
-Todo: Insert description here!
+OrderManagement (kurz: OM) interagiert vollständig asynchron mit einem Magento-Shopsystem über
+REST-API-Calls via XML bzw. JSON. Es holt neue Bestellungen ab und verwaltet diese
+in einer einfachen Bedienoberfläche. 
+Dabei werden über PUSH - Operationen der API Status bzw. Lieferzeitpunkt der Bestellung
+verändert. 
+Schnittstellen sind ein Thermal-Printer (80mm) für den Druck der Bestellung.
+In dem Projekt wird ein 2,5" Touch-Display benutzt, kann aber auch für Desktop mit Maus-Bedienung
+genutzt werden.
+
+## Installation
+
 
 ## Using the module
 
@@ -24,5 +35,8 @@ var config = {
 
 | Option           | Description
 |----------------- |-----------
-| `option1`        | *Required* DESCRIPTION HERE
-| `option2`        | *Optional* DESCRIPTION HERE TOO <br><br>**Type:** `int`(milliseconds) <br>Default 60000 milliseconds (1 minute)
+| `magentoEndpoint`                  | *Required* Root-URL zur Remote Magento-Shop - API <br>Default (Demo-Shop): "https://m3.pizza-web.de/api/rest/orderxml/" <br>**Type:** `String`
+| `singleOrderAccess`        | *Required* URL-Part für API-Einstelzugriffe <br>Default (Demo-Shop): "orderdelivery/"<br>**Type:** `String`
+| `apiMethodNewOrders`                | *Required* URL-Part für API-Sammelzugriffe <br>Default (Demo-Shop): "getneworders"<br>**Type:** `String`
+| `login`                | *Required* REST-API Benutzername <br>Default (Demo-Shop): "inchAcc422"<br>**Type:** `String`
+| `password`                | *Required* REST-API Passwort <br>Default (Demo-Shop): "Nfu48Dwww"<br>**Type:** `String`
