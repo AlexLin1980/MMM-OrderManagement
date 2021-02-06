@@ -1,0 +1,332 @@
+/* Magic Mirror
+ * Node Helper: MMM-OrderManagement
+ *
+ * By 
+ * MIT Licensed.
+ */
+
+var util = require("util"),
+	 eyes = require('eyes'),
+    https = require('https'),    
+    fs = require('fs'),
+    xml2js = require('xml2js'),          
+    moment = require('moment'),  
+	 nodermailer = require ("nodemailer"),
+	 querystring = require('querystring'),
+	 ipp = require("ipp"),
+	 printer = require('printer');
+    NodeHelper = require("node_helper");
+const { Curl } = require('node-libcurl');
+var exec = require("child_process").exec;
+
+
+parser = new xml2js.Parser(), 
+
+
+
+
+
+module.exports = NodeHelper.create({
+  
+  start: function() {
+        this.started = false;
+        this.config = {};
+        this.orderList = {};
+        this.detailOrder = {};
+    },
+
+    socketNotificationReceived: function(notification, payload) {
+      var self = this;
+	      if (notification === 'CONFIG') {
+	           if (!this.started) {
+	               this.config = payload;
+	               this.started = true;
+	               console.log("MMM-OrderManagment module has started")
+	               this.sendSocketNotification("SHUTIT", payload);
+	           }
+	           
+	      }
+	      if (notification === "GET_NEW_ORDERS") {
+	           orderList = this.getNewOrders();
+	           console.log("Get new Orders!");
+	           if (orderList != null && orderList.size > 0){
+						this.sendSocketNotification("NEW_ORDERS_RECEIVED", orderList);              
+	           }else {
+	           		this.sendSocketNotification("ORDERS_EMPTY", "");
+	           }
+	      }
+          
+         if (notification === "GET_ORDER_DETAIL"){
+        		var pOrder = JSON.parse(payload);          		        		
+        		detailOrder = this.getOrder(pOrder);          	
+         }
+          
+         if (notification === "UPDATE_ORDER"){
+				var pOrder = JSON.parse(payload);				
+				this.updateOrder(pOrder);          
+         }
+  
+         if (notification === "CHANGE_DELIVERY_TIME"){          	          	
+          	this.sendSocketNotification("DELIVERY_TIME_DIALOG", payload);
+			}
+			
+			if (notification === "PRINT_ORDER"){
+				console.log("Bestellung drucken ");
+				this.printOrder(JSON.parse(payload));
+				//Hier müssen wir nicht zurück			
+			}
+			
+			if (notification === "CLOSE_OR_OPEN_SHOP"){
+				var shopClose =  JSON.parse(payload);
+				console.log("Shop " + (shopClose === true ? "schließen. " : "öffnen"));
+				this.closeOrOpenShop(shopClose);			
+			}
+
+          if (notification === "RESTART") {
+              console.log("Restarting RaspberryPi!");
+              exec('sudo reboot now', console.log);
+          } 
+          
+          if (notification === "SHUTDOWN") {
+              console.log("Shutdown RaspberryPi!");
+              exec('sudo shutdown now', console.log);
+          }
+          
+    },
+
+	/*Bestellung wird verändert
+			Entweder: Status ändern in
+					"Erhalten" : received
+					"Küche": kitchen
+					"Zustellung" : in_delivery
+					"Zugestellt" : delivered
+					"Storniert" : error (?)
+			Oder: Lieferzeit wird verändert
+			       time : YYYY-MM-DD hh:mm:ss + 02:00	      		       		
+	*/
+	updateOrder: function(pOrder){
+			
+			var self = this;
+			var pOrderId = Array.isArray(pOrder.OrderID) ? pOrder.OrderID[0] : pOrder.OrderID;
+			var pTime = Array.isArray(pOrder.DeliveryTime) ? pOrder.DeliveryTime[0] : pOrder.DeliveryTime;
+			var pStatus = Array.isArray(pOrder.DeliveryStatus) ? pOrder.DeliveryStatus[0] : pOrder.DeliveryStatus;
+			var putString = JSON.stringify({
+  												  status : pStatus,
+  												  time : pTime,
+  												  close_shop : "false"});
+										
+		   //Erstmal in eine Datei schreiben
+  		fs.writeFileSync("programming.txt", putString); 												
+			var curl = new Curl();
+ 			console.log("String: "+ putString);
+
+
+		fs.open("programming.txt", 'r+', function (err, fd) {
+ 			
+			curl.setOpt(Curl.option.URL, self.config.magentoEndpoint + 
+							self.config.singleOrderAccess + pOrderId + "?login="+
+							self.config.login+ "&password="+self.config.password);
+			curl.setOpt(Curl.option.HTTPHEADER, ['Content-Type: application/json']);					 
+	  		curl.setOpt(Curl.option.VERBOSE, false);
+	  		
+	  		curl.setOpt(Curl.option.UPLOAD, true);
+	  		curl.setOpt(Curl.option.READDATA, fd);			
+			
+			curl.on('end', function () {				
+					console.log("Habe Bestellung geändert auf: " +JSON.stringify(putString));
+					curl.close.bind(curl);
+					// remember to always close the file descriptor!
+    				fs.closeSync(fd);
+    				fs.unlinkSync("programming.txt");
+
+					self.sendSocketNotification("ORDER_UPDATE_SUCCESSFUL", "");
+				});						
+			curl.on('error', function(error) {
+				console.log("Fehler: " +error);
+				curl.close.bind(curl);
+				self.sendSocketNotification("ERROR_ORDER_UPDATE", error);
+			});			
+			curl.perform();		
+		});				
+	},
+
+	
+
+	//TODO: Es kann nicht sein, dass diese API-Methode an einer Bestellung
+	//hängt. Zum Testen erstmal hard verdrahtete Bestellung
+	
+	closeOrOpenShop: function(pClose){
+			var self = this;						
+			var curl = new Curl();
+			var paramClose = pClose;
+			const close = curl.close.bind(curl);
+			
+			fs.writeFileSync("close.txt", JSON.stringify({close_shop : paramClose})); 				
+			 
+			fs.open("close.txt", 'r+', function (err, fd) { 
+				curl.setOpt(Curl.option.URL, self.config.magentoEndpoint + 
+				self.config.singleOrderAccess + "999" + "?login="+
+				self.config.login+ "&password="+self.config.password);
+				
+				curl.setOpt(Curl.option.HTTPHEADER, ['Content-Type: application/json']);					 
+	  			curl.setOpt(Curl.option.VERBOSE, false);	  		
+	  			curl.setOpt(Curl.option.UPLOAD, true);
+	  			curl.setOpt(Curl.option.READDATA, fd);	
+	  				
+				curl.on('end', function () {				
+					console.log("Shop ist nun geschlossen: " +JSON.stringify(paramClose));
+					curl.close.bind(curl);
+					fs.closeSync(fd);
+    				fs.unlinkSync("close.txt");
+					self.sendSocketNotification("SHOP_OPEN_CLOSE_SUCCESSFUL", +JSON.stringify(paramClose));
+				});						
+				curl.on('error', function(error) {
+					curl.close.bind(curl);
+					self.sendSocketNotification("ERROR_OPEN_CLOSE_SHOP", error);				
+				});			
+				curl.perform();
+			});
+	},
+	
+	
+		
+//Ermittelt die neuen Bestellungen		
+	getNewOrders: function () {
+		var self =this;
+		var url =  this.config.magentoEndpoint + this.config.apiMethodNewOrders + "?login="+this.config.login+ "&password="+this.config.password ;
+		var curl = new Curl();
+		
+		 
+		curl.setOpt('URL', url);
+		curl.setOpt('FOLLOWLOCATION', true);
+ 
+		curl.on('end', function (statusCode, data, headers) {
+  					console.info(statusCode);
+  					console.info('---');
+  					console.info(data.length);
+  					
+  					parser.parseString(data,  function(err, result) {
+	            if (err) {
+	                console.log('Got error1: ' + err.message);
+	            } else {
+	                var container = result.LieferKasse.OrderList;
+	        		 self.orderList = container[0];
+	            }
+				if (self.orderList && self.orderList.Order.length > 0) {
+					console.log("good");
+		         self.sendSocketNotification("NEW_ORDERS_RECEIVED", JSON.stringify(self.orderList));
+		       }
+        		 else {
+        			console.log("bad");
+        			self.sendSocketNotification("ORDERS_EMPTY", "");       
+      		 }		      
+	       	});
+		});
+ 				curl.on('error', curl.close.bind(curl));
+				curl.perform();
+				
+	
+},
+		
+		/* Ermittelt zur übergebenen Array von Orders die Bestellung im Format
+		<LieferKasse>
+			<StatusMessage>
+				<OrderID>999</OrderID>						# Bestellnummer
+				<DeliveryStatus>received</DeliveryStatus>	# Status
+				<DeliveryTime>21:50</DeliveryTime>			# Lieferzeit | kann auch nur als Text (z.B. "Sofortlieferung") übergeben werden
+			</StatusMessage>
+		</LieferKasse>		
+		    */		    
+	getOrder: function (pOrder) {
+		var self =this;
+		var pOrderId = pOrder["OrderID"];
+		console.log("ORDER_ID: " + pOrderId);
+		var url =  this.config.magentoEndpoint + this.config.singleOrderAccess + pOrderId+ "?login="+this.config.login+ "&password="+this.config.password ;
+		console.log(url);
+		var curl = new Curl();
+		
+		 
+		curl.setOpt('URL', url);
+		curl.setOpt('FOLLOWLOCATION', true);
+ 
+		curl.on('end', function (statusCode, data, headers) {
+  					console.info(statusCode);
+  					console.info('---');
+  					console.info(data.length);
+  					//console.info(data);
+  					
+  					parser.parseString(data,  function(err, result) {
+		            if (err) {
+		                console.log('Got error: ' + err.message);
+		            } else {
+		                //eyes.inspect(result);
+		                console.log('Done.' + JSON.stringify(result));
+		                var container = result.LieferKasse.StatusMessage[0];
+		                
+		                container.OrderPdf = pOrder["OrderPDF"];
+		              	 self.sendSocketNotification("ORDER_DETAIL_RECEIVED", JSON.stringify(container));
+		            }
+		            
+	       		});
+  				console.info('---');
+  				console.info(this.getInfo( 'TOTAL_TIME'));
+  				this.close();
+		});
+ 		curl.on('error', curl.close.bind(curl));
+		curl.perform();
+		
+		//self.sendSocketNotification("ORDER_DETAILS_GATHERED", order);
+	},
+		
+	  	//Bestellung ausdrucken
+		printOrder : function (pBuffer) {
+		
+		//console.log("Supported Formats are: " + util.inspect(printer.getSupportedPrintFormats(), {colors:true, depth:10}));
+		//console.log("Supported job commands: " + util.inspect(printer.getSupportedJobCommands(), {colors:true, depth:10}));
+		
+		var buff = Buffer.from(pBuffer.toString(), 'base64');
+		 //Erstmal in eine Datei schreiben
+  		fs.writeFileSync("receipt.pdf", buff); 		
+		
+		
+		//Hier kommt der echte Druck
+		printer.printFile({
+			filename: "receipt.pdf",
+			printer: "pos80",
+			type: "POSTSCRIPT",
+			success: function(id){
+				console.log ("Order printed with Jobid: " + id);
+			},
+			error: function(err){
+				console.log ("Error on printing " + err);			
+			}
+			});		
+	
+		/*printer.printDirect({
+			data: buff,
+			printer: "pos80",
+			type: "PDF",			
+			success: function(id){
+				console.log ("Order printed with Jobid: " + id);
+			},
+			error: function(err){
+				console.log ("Error on printing " + err);			
+			}			
+		});*/			
+	},
+	
+	
+    checkForExecError: function(error, stdout, stderr) {
+        if (stderr) {
+            console.log('stderr: "' + stderr + '"');
+            return 1;
+        }
+        if (error !== null) {
+            console.log('exec error: ' + error);
+            return 1;
+        }
+        return 0;
+    },
+
+
+})

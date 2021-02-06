@@ -1,0 +1,31 @@
+{
+  "name": "MMM-OrderManagement",
+  "version": "1.0.0",
+  "description": "Todo: Insert description here!",
+  "main": "MMM-OrderManagement.js",
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-eslint": "latest",
+    "grunt-jsonlint": "latest",
+    "grunt-markdownlint": "^1.0.13",
+    "grunt-stylelint": "latest",
+    "grunt-yamllint": "latest",
+    "stylelint-config-standard": "latest",
+    "time-grunt": "latest"
+  },
+  "dependencies": {
+    "@thiagoelg/node-printer": "^0.5.3",
+    "eyes": "^0.1.8",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "https": "^1.0.0",
+    "ipp": "^2.0.1",
+    "moment": "^2.29.1",
+    "node-printer": "^1.0.4",
+    "nodemailer": "^6.4.16",
+    "querystring": "^0.2.0",
+    "xml2js": "^0.4.23"
+  }
+}
