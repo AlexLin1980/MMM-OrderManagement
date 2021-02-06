@@ -13,11 +13,21 @@ In dem Projekt wird ein 2,5" Touch-Display benutzt, kann aber auch für Desktop 
 genutzt werden.
 
 ## Installation
+Im lokalen MagicMirror-Verzeichnis folgende Befehle ausführen
 
+git clone https://github.com/AlexLin1980/MMM-OrderManagement.git
+cd MMM-OrderManagement
+npm install
+
+## Updates
+Im lokalen MagicMirror-Verzeichnis folgende Befehle ausführen
+
+git pull
+npm install
 
 ## Using the module
 
-To use this module, add the following configuration block to the modules array in the `config/config.js` file:
+Um diese Modul in der MagicMirror² - Umgebung zu nutzen und einzustellen, editiere die `config/config.js` file:
 ```js
 var config = {
     modules: [
