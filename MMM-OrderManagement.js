@@ -104,7 +104,7 @@ Module.register("MMM-OrderManagement", {
 			  
 			var headline = document.createElement("span");
 			headline.className = "modulebar-header";
-			headline.innerHTML = "Funktionen zur Bestellung";	 	  
+			headline.innerHTML = "Bestellung " + self.selectedOrder.OrderNumber + " ändern";	 	  
 			menu.appendChild(headline);		  
 		  var div = document.createElement("div");
 		  div.className="button-row";			
@@ -183,7 +183,7 @@ Module.register("MMM-OrderManagement", {
 				return "error";
 			break;
 			case "Stornieren" :
-				return "cancelled";
+				return "canceled";
 			break;
 			case "Zugestellt" :
 				return "delivered";
@@ -211,7 +211,7 @@ Module.register("MMM-OrderManagement", {
 			case "error" :
 				return "Fehler";
 			break;
-			case "cancelled" :
+			case "canceled" :
 				return "Storniert";
 			break;
 			case "delivered" :
@@ -234,11 +234,11 @@ Module.register("MMM-OrderManagement", {
 		if (self.loaded && self.orderDetailLoaded){
 				//Erstes Element nehmen
 				var pOrder = self.newOrderDetail;
-				
-				console.log("Rendere: " +JSON.stringify(pOrder));
+				pOrder.OrderNumber = self.newOrderList.Order[0]["OrderNumber"];
+				//console.log("Rendere: " +JSON.stringify(pOrder));
 				var headline = document.createElement("span");
 				headline.className = "modulebar-header";
-				headline.innerHTML = "Neue Bestellung (" + pOrder.OrderID+ ")";	  
+				headline.innerHTML = "Neue Bestellung (" + pOrder.OrderNumber + ")";	  
 				menu.appendChild(headline);				
 				var div = document.createElement("div");
 				div.className="newOrder";				
@@ -272,7 +272,8 @@ Module.register("MMM-OrderManagement", {
 				 
 				 	let pdfbase64 = self.sendSocketNotification("PRINT_ORDER", JSON.stringify(
 				 								 	self.newOrderList.Order[0]["OrderPDF"]));
-				 	pOrder.DeliveryStatus = "received";							 	
+				 	pOrder.DeliveryStatus = "received";		
+				 	//pOrder.OrderNumber = self.newOrderList.Order[0]["OrderNumber"];					 	
 				 	self.orderList.push(pOrder);
 				 	self.selectedOrder = pOrder;				 		
 				 	self.newOrderList.Order.splice(0, 1);				 		
@@ -303,7 +304,8 @@ Module.register("MMM-OrderManagement", {
 								
 		var span = null;
 		var orderId = null;
-		var orderStatus = null;					
+		var orderStatus = null;		
+		var orderNumber = null;			
 		var divTable = document.createElement("div");
 		divTable.className = "divTable";
 		let divRow = document.createElement("div");
@@ -353,6 +355,7 @@ Module.register("MMM-OrderManagement", {
 				divRow.id = "divRow_" +i; 
 				let order = self.orderList[i];
 				orderId = order.OrderID;				
+				orderNumber = order.OrderNumber;
 				orderStatus = order.DeliveryStatus;
 				
 				let divCellLeft = document.createElement("div");				
@@ -363,7 +366,7 @@ Module.register("MMM-OrderManagement", {
 				let spanLeft = document.createElement("span");				
 				let spanRight = document.createElement("span");
 				
-				spanLeft.innerHTML = orderId;
+				spanLeft.innerHTML = orderNumber;
 				spanRight.innerHTML = this.translateDeliveryStatusFromApi(orderStatus);
 				divCellLeft.appendChild(spanLeft);
 				divCellRight.appendChild(spanRight);							
@@ -568,6 +571,7 @@ Module.register("MMM-OrderManagement", {
         return item;
     },
 
+		//Falls man das mal braucht
     notificationReceived: function(notification, payload, sender) {        
         if (notification === "Recieved") {
             //this.doMenuAction(payload);
