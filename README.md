@@ -62,13 +62,33 @@ git clone https://github.com/AlexLin1980/MMM-OrderManagement.git
 cd MMM-OrderManagement
 npm install
 ```
+ACHTUNG: Je nach Softwarestand kann ein electron-rebuild erforderlich
+werden. Hier mal Google bemühen im Kontext MagicMirror und electron.
 
-## Update für dieses Modul
+## Update für dieses Modul (Optional)
 Im lokalen MagicMirror-Verzeichnis folgende Befehle ausführen:
 ```
 git pull
 npm install
 ```
+## Automatische Updates einspielen vor jedem Start (Optional)
+Über Remote-SSH-Verbindung eine Kommandozeile öffnen, bzw.
+über rdesktop von Linux oder RemoteDesktop von Windows auf
+den Raspberry gehen. Und dann am besten eine Shell öffnen.
+Hierzu ist die mm.sh einmalig zu editieren. Der Inhalt sollte
+so aussehen. 
+
+```
+cd ./MagicMirror/modules/MMM-OrderManagement
+#Update einspielen und installieren
+git pull
+npm install
+#Modul starten
+cd ./MagicMirror/
+DISPLAY=:0 npm start
+```
+
+
 ## Verwendung dieses Moduls
 
 Um diese Modul in der MagicMirror² - Umgebung zu nutzen und einzustellen, editiere die `config/config.js` file:
@@ -85,7 +105,7 @@ var config = {
 }
 ```
 
-## Configuration options
+## Konfiguration des Moduls
 
 | Option           | Description
 |----------------- |-----------
