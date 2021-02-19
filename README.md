@@ -81,7 +81,7 @@ so aussehen.
 ```
 cd ./MagicMirror/modules/MMM-OrderManagement
 #Update einspielen und installieren
-git pull
+git pull https://github.com/AlexLin1980/MMM-OrderManagement
 npm install
 #Modul starten
 cd ~/MagicMirror/
