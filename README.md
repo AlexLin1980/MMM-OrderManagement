@@ -84,7 +84,7 @@ cd ./MagicMirror/modules/MMM-OrderManagement
 git pull
 npm install
 #Modul starten
-cd ./MagicMirror/
+cd ~/MagicMirror/
 DISPLAY=:0 npm start
 ```
 
