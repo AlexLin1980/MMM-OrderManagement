@@ -75,8 +75,12 @@ npm install
 Über Remote-SSH-Verbindung eine Kommandozeile öffnen, bzw.
 über rdesktop von Linux oder RemoteDesktop von Windows auf
 den Raspberry gehen. Und dann am besten eine Shell öffnen.
-Hierzu ist die mm.sh einmalig zu editieren. Der Inhalt sollte
-so aussehen. 
+Hierzu ist die mm.sh einmalig zu editieren. 
+```
+pm2 stop mm
+sudo nano mm.sh
+```
+Der Inhalt sollte so aussehen: 
 
 ```
 cd ./MagicMirror/modules/MMM-OrderManagement
@@ -87,7 +91,12 @@ npm install
 cd ~/MagicMirror/
 DISPLAY=:0 npm start
 ```
+Mit Strg+O speichern und Strg+X verlassen.
 
+Abschließend Neustart des Systems:
+```
+sudo reboot now
+```
 
 ## Verwendung dieses Moduls
 
