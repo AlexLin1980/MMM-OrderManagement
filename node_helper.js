@@ -288,7 +288,7 @@ module.exports = NodeHelper.create({
 		
 		
 		//Hier kommt der echte Druck
-		printer.printFile({
+		setTimeout(function(){printer.printFile({
 			filename: "receipt.pdf",
 			printer: "pos80",
 			type: "PDF",
@@ -298,7 +298,7 @@ module.exports = NodeHelper.create({
 			error: function(err){
 				console.log ("Error on printing " + err);			
 			}
-			});		
+			})}, 500);		
 	
 		/*printer.printDirect({
 			data: buff,
